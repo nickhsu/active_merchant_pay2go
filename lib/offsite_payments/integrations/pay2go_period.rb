@@ -29,6 +29,7 @@ module OffsitePayments #:nodoc:
           else
             raise StandardError, "Integration mode set to an invalid value: #{mode}"
         end
+        'https://core.spgateway.com/MPG/period'
       end
 
       def self.notification(post)

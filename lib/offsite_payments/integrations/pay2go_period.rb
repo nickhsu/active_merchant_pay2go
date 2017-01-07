@@ -20,11 +20,11 @@ module OffsitePayments #:nodoc:
         mode = ActiveMerchant::Billing::Base.mode
         case mode
           when :production
-            'https://api.pay2go.com/API/PeriodAPI'
+            'https://core.spgateway.com/MPG/period'
           when :development
-            'https://capi.pay2go.com/API/PeriodAPI'
+            'https://ccore.spgateway.com/MPG/period'
           when :test
-            'https://capi.pay2go.com/API/PeriodAPI'
+            'https://ccore.spgateway.com/MPG/period'
           else
             raise StandardError, "Integration mode set to an invalid value: #{mode}"
         end

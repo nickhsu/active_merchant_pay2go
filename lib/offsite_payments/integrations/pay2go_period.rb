@@ -40,8 +40,8 @@ module OffsitePayments #:nodoc:
 
       class Helper < OffsitePayments::Helper
         FIELDS = %w(
-          MerchantID MerchantOrderNo PeriodAmt ProdDesc PeriodAmtMode PeriodType PeriodPoint PeriodStartType
-          PeriodTimes ReturnURL ProDetail PeriodMemo PaymentInfo OrderInfo InvoiceInfo NotifyURL
+          MerchantID MerOrderNo PeriodAmt ProdDesc PeriodAmtMode PeriodType PeriodPoint PeriodStartType
+          PeriodTimes ReturnURL ProDetail PeriodMemo PaymentInfo OrderInfo InvoiceInfo NotifyURL PayerEmail
         )
 
         FIELDS.each do |field|

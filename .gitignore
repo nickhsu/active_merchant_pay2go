@@ -10,3 +10,9 @@
 test/tmp/*
 *.gem
 coverage
+.idea/.rakeTasks
+.idea/active_merchant_pay2go.iml
+.idea/misc.xml
+.idea/modules.xml
+.idea/vcs.xml
+.idea/workspace.xml

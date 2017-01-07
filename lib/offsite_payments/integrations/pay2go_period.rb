@@ -1,5 +1,6 @@
 # encoding: utf-8
 require 'digest'
+require 'openssl'
 
 module OffsitePayments #:nodoc:
   module Integrations #:nodoc:
@@ -40,18 +41,18 @@ module OffsitePayments #:nodoc:
 
       class Helper < OffsitePayments::Helper
         FIELDS = %w(
-          MerchantID MerOrderNo PeriodAmt ProdDesc PeriodAmtMode PeriodType PeriodPoint PeriodStartType
+          MerOrderNo PeriodAmt ProdDesc PeriodAmtMode PeriodType PeriodPoint PeriodStartType Version TimeStamp
           PeriodTimes ReturnURL ProDetail PeriodMemo PaymentInfo OrderInfo InvoiceInfo NotifyURL PayerEmail
         )
 
         FIELDS.each do |field|
           mapping field.underscore.to_sym, field
         end
-        mapping :account, 'MerchantID' # AM common
+        #mapping :account, 'MerchantID' # AM common
 
         def initialize(order, account, options = {})
           super
-          add_field 'MerchantID', OffsitePayments::Integrations::Pay2go.merchant_id
+          add_field 'MerchantID_', OffsitePayments::Integrations::Pay2go.merchant_id
           add_field 'Version', OffsitePayments::Integrations::Pay2goPeriod::VERSION
           add_field 'RespondType', OffsitePayments::Integrations::Pay2goPeriod::RESPOND_TYPE
         end
@@ -61,12 +62,30 @@ module OffsitePayments #:nodoc:
         end
 
         def encrypted_data
-          raw_data = URI.encode_www_form OffsitePayments::Integrations::Pay2goPeriod::CHECK_VALUE_FIELDS.sort.map { |field|
+          raw_data = URI.encode_www_form FIELDS.sort.map { |field|
             [field, @fields[field]]
           }
 
-          hash_raw_data = "HashKey=#{OffsitePayments::Integrations::Pay2go.hash_key}&#{raw_data}&HashIV=#{OffsitePayments::Integrations::Pay2go.hash_iv}"
-          add_field 'CheckValue', Digest::SHA256.hexdigest(hash_raw_data).upcase
+          add_field 'PostData_', encrypt(OffsitePayments::Integrations::Pay2go.hash_key, OffsitePayments::Integrations::Pay2go.hash_iv, raw_data)
+        end
+
+        private
+
+        def encrypt(key = "", iv = "", str = "")
+          cipher = OpenSSL::Cipher::Cipher.new("aes-256-cbc")
+          cipher.encrypt
+          cipher.key = key
+          cipher.iv = iv
+
+          encrypted = cipher.update(add_padding(str))
+          encrypted << cipher.final
+
+          encrypted.unpack("H*").first.strip
+        end
+
+        def add_padding(str, block_size = 32)
+          padding = block_size - (str.size % block_size);
+          str + padding.chr.gsub(/[^[:print:]]/, '') * padding
         end
 
       end
